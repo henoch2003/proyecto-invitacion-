@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="only light">
+<title>Panel · Mesa de regalos</title>
+<style>
+:root{--rose:#b01f64;--pink:#a8205e;--line:#e3c9d6;--ink:#3f2a35;--bg:#fbeff4}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.5rem;margin:0 0 4px;color:var(--pink)}
+h2{font-size:1.1rem;margin:28px 0 10px;color:var(--pink)}
+.sub{margin:0 0 18px;color:#7a5a6b;font-size:.92rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+label{display:block;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--rose);margin:0 0 4px}
+input,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--rose);background:#fff;color:var(--rose);padding:8px 14px}
+button.primary{background:linear-gradient(160deg,#d92d82,#a8165f);color:#fff;border-color:transparent;font-weight:600}
+button.danger{border-color:#b3123f;color:#b3123f}
+button:disabled{opacity:.6;cursor:wait}
+.err{color:#b3123f;min-height:1.3em;margin:6px 0 0;font-size:.9rem}
+.ok{color:#1b7f4c}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.stat{flex:1 1 120px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:center}
+.stat b{display:block;font-size:1.7rem;color:var(--pink)}
+.stat span{font-size:.8rem;color:#7a5a6b}
+.gift{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.gift .info{flex:1 1 260px;min-width:0}
+.gift .t{font-weight:700;overflow-wrap:anywhere}
+.gift .n{font-size:.9rem;color:#6b5360;overflow-wrap:anywhere}
+.gift a{font-size:.85rem;color:var(--rose)}
+.badge{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:999px;font-size:.82rem;font-weight:600}
+.badge.free{background:#e9f6ee;color:#1b7f4c}
+.badge.taken{background:#fde6ef;color:var(--pink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+[hidden]{display:none!important}
+.empty{text-align:center;color:#7a5a6b;padding:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Acceso -->
+  <section id="login" hidden>
+    <h1>Panel de regalos</h1>
+    <p class="sub">Ingresa tu contraseña para ver la lista.</p>
+    <form class="card" id="loginForm">
+      <div class="field"><label for="pw">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <button class="primary" type="submit">Entrar</button>
+      <p class="err" id="loginErr" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Panel -->
+  <section id="panel" hidden>
+    <div class="top">
+      <div><h1>Mesa de regalos</h1><p class="sub">Arlene Dafne · 15 años</p></div>
+      <button id="logout" type="button">Salir</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="sTotal">0</b><span>Regalos en la lista</span></div>
+      <div class="stat"><b id="sTaken">0</b><span>Ya elegidos</span></div>
+      <div class="stat"><b id="sFree">0</b><span>Disponibles</span></div>
+    </div>
+
+    <h2 id="formTitle">Agregar un regalo</h2>
+    <form class="card" id="giftForm">
+      <input type="hidden" id="gId">
+      <div class="row">
+        <div class="field"><label for="gTitle">Regalo</label><input id="gTitle" maxlength="100" placeholder="Ej: Perfume Carolina Herrera" required></div>
+        <div class="field"><label for="gIcon">Tipo</label>
+          <select id="gIcon">
+            <option value="gift">Regalo</option><option value="dress">Ropa</option><option value="shoe">Zapatos</option>
+            <option value="perfume">Perfume</option><option value="makeup">Maquillaje</option><option value="gem">Joyas / accesorios</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label for="gNote">Detalle (opcional)</label><input id="gNote" maxlength="200" placeholder="Ej: talla S, color rosado"></div>
+      <div class="field"><label for="gUrl">Link de referencia (opcional)</label><input id="gUrl" type="url" maxlength="500" placeholder="https://..."></div>
+      <div class="actions">
+        <button class="primary" type="submit" id="saveBtn">Agregar a la lista</button>
+        <button type="button" id="cancelBtn" hidden>Cancelar edición</button>
+      </div>
+      <p class="err" id="formErr" role="alert"></p>
+    </form>
+
+    <h2>Lista y quién eligió cada regalo</h2>
+    <div id="list"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var gifts = [];
+
+  function api(method, path, data) {
+    return fetch(path, {
+      method: method, headers: { 'Content-Type': 'application/json' },
+      body: data ? JSON.stringify(data) : undefined, cache: 'no-store'
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (r.status === 401 && path !== '/api/admin/login') { showLogin(); throw new Error('Sesión vencida'); }
+        if (!r.ok) throw new Error(d.error || 'Error');
+        return d;
+      });
+    });
+  }
+
+  function showLogin() { $('panel').hidden = true; $('login').hidden = false; $('pw').focus(); }
+  function showPanel() { $('login').hidden = true; $('panel').hidden = false; load(); }
+
+  function fmt(d) {
+    try { return new Date(d).toLocaleString('es-PE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' }); }
+    catch (e) { return ''; }
+  }
+
+  function load() {
+    return api('GET', '/api/admin/gifts').then(function (d) { gifts = d.gifts || []; render(); })
+      .catch(function () {});
+  }
+
+  function render() {
+    var taken = gifts.filter(function (g) { return g.claimed_by; }).length;
+    $('sTotal').textContent = gifts.length; $('sTaken').textContent = taken; $('sFree').textContent = gifts.length - taken;
+    var box = $('list'); box.textContent = '';
+    if (!gifts.length) { var e = document.createElement('div'); e.className = 'card empty'; e.textContent = 'Aún no hay regalos. Agrega el primero arriba.'; box.appendChild(e); return; }
+    gifts.forEach(function (g) {
+      var c = document.createElement('div'); c.className = 'card gift';
+      var info = document.createElement('div'); info.className = 'info';
+      var t = document.createElement('div'); t.className = 't'; t.textContent = g.title; info.appendChild(t);
+      if (g.note) { var n = document.createElement('div'); n.className = 'n'; n.textContent = g.note; info.appendChild(n); }
+      if (g.url) { var a = document.createElement('a'); a.href = g.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Ver referencia'; info.appendChild(a); }
+      var b = document.createElement('div'); b.className = 'badge ' + (g.claimed_by ? 'taken' : 'free');
+      b.textContent = g.claimed_by ? 'Lo regala: ' + g.claimed_by + (g.claimed_at ? ' · ' + fmt(g.claimed_at) : '') : 'Disponible';
+      info.appendChild(document.createElement('br')); info.appendChild(b);
+      var act = document.createElement('div'); act.className = 'actions';
+      function btn(label, cls, fn) { var x = document.createElement('button'); x.type = 'button'; x.textContent = label; if (cls) x.className = cls; x.addEventListener('click', fn); act.appendChild(x); }
+      btn('Editar', '', function () { edit(g); });
+      if (g.claimed_by) btn('Liberar', '', function () {
+        if (confirm('¿Liberar "' + g.title + '"? ' + g.claimed_by + ' dejará de aparecer y otro invitado podrá elegirlo.'))
+          api('POST', '/api/admin/release', { id: g.id }).then(load).catch(function (e) { alert(e.message); });
+      });
+      btn('Eliminar', 'danger', function () {
+        if (confirm('¿Eliminar "' + g.title + '" de la lista?'))
+          api('DELETE', '/api/admin/gifts', { id: g.id }).then(load).catch(function (e) { alert(e.message); });
+      });
+      c.appendChild(info); c.appendChild(act); box.appendChild(c);
+    });
+  }
+
+  function edit(g) {
+    $('gId').value = g.id; $('gTitle').value = g.title; $('gIcon').value = g.icon || 'gift';
+    $('gNote').value = g.note || ''; $('gUrl').value = g.url || '';
+    $('formTitle').textContent = 'Editar regalo'; $('saveBtn').textContent = 'Guardar cambios'; $('cancelBtn').hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' }); $('gTitle').focus();
+  }
+  function resetForm() {
+    $('giftForm').reset(); $('gId').value = ''; $('formErr').textContent = '';
+    $('formTitle').textContent = 'Agregar un regalo'; $('saveBtn').textContent = 'Agregar a la lista'; $('cancelBtn').hidden = true;
+  }
+  $('cancelBtn').addEventListener('click', resetForm);
+
+  $('giftForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var id = $('gId').value;
+    var data = { title: $('gTitle').value, icon: $('gIcon').value, note: $('gNote').value, url: $('gUrl').value };
+    if (id) data.id = Number(id);
+    $('saveBtn').disabled = true; $('formErr').textContent = '';
+    api(id ? 'PUT' : 'POST', '/api/admin/gifts', data)
+      .then(function () { resetForm(); return load(); })
+      .catch(function (err) { $('formErr').textContent = err.message; })
+      .then(function () { $('saveBtn').disabled = false; });
+  });
+
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('loginErr').textContent = '';
+    api('POST', '/api/admin/login', { password: $('pw').value })
+      .then(function () { $('pw').value = ''; showPanel(); })
+      .catch(function (err) { $('loginErr').textContent = err.message; });
+  });
+  $('logout').addEventListener('click', function () { api('DELETE', '/api/admin/login').then(showLogin); });
+
+  api('GET', '/api/admin/login').then(function (d) { d.admin ? showPanel() : showLogin(); }).catch(showLogin);
+  setInterval(function () { if (!$('panel').hidden && !document.hidden) load(); }, 20000);
+})();
+</script>
+</body>
+</html>
