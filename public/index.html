@@ -626,7 +626,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
   /* ---------- Música ---------- */
   var fab = document.getElementById('fab'), audio = new Audio('assets/musica.mp3'), playing = false, wanted = false;
-  audio.loop = true; audio.volume = 0.6; audio.preload = 'auto';
+  audio.loop = true; audio.volume = 0.85; audio.preload = 'auto';
   function setOn(on) { playing = on; fab.classList.toggle('on', on); fab.setAttribute('aria-pressed', on ? 'true' : 'false'); fab.setAttribute('aria-label', on ? 'Pausar música' : 'Reproducir música'); }
   function startMusic() { var p = audio.play(); if (p && p.then) p.then(function () { setOn(true); wanted = true; }, function () { setOn(false); }); }
   fab.addEventListener('click', function () { if (playing) { audio.pause(); setOn(false); wanted = false; } else { startMusic(); } });
