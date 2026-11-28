@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="only light">
+<title>Panel · Mesa de regalos</title>
+<style>
+:root{--rose:#6b7f5f;--pink:#50614a;--line:#d8cfae;--ink:#3f2a35;--bg:#f6f3ea}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.5rem;margin:0 0 4px;color:var(--pink)}
+h2{font-size:1.1rem;margin:28px 0 10px;color:var(--pink)}
+.sub{margin:0 0 18px;color:#6a6a58;font-size:.92rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+label{display:block;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--rose);margin:0 0 4px}
+input,select,textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--rose);background:#fff;color:var(--rose);padding:8px 14px}
+button.primary{background:linear-gradient(160deg,#d92d82,#50614a);color:#fff;border-color:transparent;font-weight:600}
+button.danger{border-color:#b3123f;color:#b3123f}
+button:disabled{opacity:.6;cursor:wait}
+.err{color:#b3123f;min-height:1.3em;margin:6px 0 0;font-size:.9rem}
+.ok{color:#1b7f4c}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.stat{flex:1 1 120px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:center}
+.stat b{display:block;font-size:1.7rem;color:var(--pink)}
+.stat span{font-size:.8rem;color:#6a6a58}
+.gift{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.gift .info{flex:1 1 260px;min-width:0}
+.gift .t{font-weight:700;overflow-wrap:anywhere}
+.gift .n{font-size:.9rem;color:#6b5360;overflow-wrap:anywhere}
+.gift a{font-size:.85rem;color:var(--rose)}
+.badge{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:999px;font-size:.82rem;font-weight:600}
+.badge.free{background:#e9f6ee;color:#1b7f4c}
+.badge.taken{background:#eef1e6;color:var(--pink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+[hidden]{display:none!important}
+.empty{text-align:center;color:#6a6a58;padding:20px}
+.thumb{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--line);flex:none;background:#ebeee2}
+.gift .main{display:flex;gap:12px;align-items:flex-start;flex:1 1 260px;min-width:0}
+.imgbox{border:1px dashed var(--line);border-radius:10px;padding:12px;background:#faf8f0}
+.imgbox .prev{display:flex;align-items:center;gap:12px;margin-top:10px}
+.imgbox .prev img{width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.hint{font-size:.8rem;color:#6a6a58;margin:6px 0 0}
+input[type=file]{padding:8px;background:#fff}
+.filerow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filerow input[type=file]{flex:1 1 200px;min-width:0}
+a.dl{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border:1px solid var(--berry,#50614a);border-radius:8px;color:var(--berry,#50614a);background:#fff;font-weight:600;font-size:.9rem;text-decoration:none;white-space:nowrap}
+a.dl:hover{background:#f1f4ea}
+details.card>summary{cursor:pointer;font-weight:700;color:var(--berry,#50614a);list-style:revert}
+#bulkPrev{margin:10px 0}
+#bulkPrev ul{margin:6px 0 0;padding:0;list-style:none;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+#bulkPrev li{padding:7px 10px;border-bottom:1px solid #ece6d2;font-size:.9rem;display:flex;gap:8px;justify-content:space-between;align-items:baseline}
+#bulkPrev li:last-child{border-bottom:0}
+#bulkPrev li small{color:#6a6a58}
+#bulkPrev li .t{display:flex;gap:10px;align-items:center;min-width:0}
+#bulkPrev li img{width:38px;height:38px;border-radius:6px;object-fit:cover;border:1px solid var(--line);flex:none;background:#ebeee2}
+#bulkPrev li .t span{min-width:0;overflow-wrap:anywhere}
+#bulkPrev li.dup{opacity:.5}
+#bulkPrev li em{font-style:normal;font-size:.72rem;color:#50614a;white-space:nowrap}
+.linkbtn{background:none;border:0;color:#b3123f;text-decoration:underline;padding:6px 0;font-size:.85rem;min-height:0;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Acceso -->
+  <section id="login" hidden>
+    <h1>Panel de regalos</h1>
+    <p class="sub">Ingresa tu contraseña para ver la lista.</p>
+    <form class="card" id="loginForm">
+      <div class="field"><label for="pw">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <button class="primary" type="submit">Entrar</button>
+      <p class="err" id="loginErr" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Panel -->
+  <section id="panel" hidden>
+    <div class="top">
+      <div><h1>Mesa de regalos</h1><p class="sub">Boda · Carlos y Alva</p></div>
+      <button id="logout" type="button">Salir</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="sTotal">0</b><span>Regalos en la lista</span></div>
+      <div class="stat"><b id="sTaken">0</b><span>Regalos elegidos</span></div>
+      <div class="stat"><b id="sFree">0</b><span>Sin elegir aún</span></div>
+    </div>
+
+    <details class="card" id="bulkBox" style="margin-bottom:14px">
+      <summary>Importar varios regalos de una vez</summary>
+      <p class="hint">Descarga la plantilla, llénala con <b>un regalo por fila</b> (Regalo, Imagen, Dónde comprarlo y Descripción) y súbela aquí.</p>
+      <div class="filerow">
+        <input id="bulkFile" type="file" accept=".xlsx,.csv">
+        <a class="dl" href="/plantilla-regalos.xlsx" download="plantilla-regalos.xlsx"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg>Descargar plantilla</a>
+      </div>
+      <div id="bulkPrev"></div>
+      <label style="display:flex;gap:8px;align-items:center;font-size:.88rem;margin:8px 0;text-transform:none;letter-spacing:0"><input id="bulkSkip" type="checkbox" checked style="width:auto"> Omitir los regalos que ya están en la lista</label>
+      <button class="primary" id="bulkGo" type="button" disabled>Agregar a la lista</button>
+      <p class="err" id="bulkMsg" role="alert"></p>
+    </details>
+
+    <h2 id="formTitle">Agregar un regalo</h2>
+    <form class="card" id="giftForm">
+      <input type="hidden" id="gId">
+      <div class="row">
+        <div class="field"><label for="gTitle">Regalo</label><input id="gTitle" maxlength="100" placeholder="Ej: Juego de ollas" required></div>
+        <div class="field"><label for="gIcon">Tipo</label>
+          <select id="gIcon">
+            <option value="gift">Otro regalo</option><option value="heart">Detalle / pareja</option><option value="home">Hogar</option>
+            <option value="kitchen">Cocina</option><option value="bed">Dormitorio</option><option value="envelope">Sobre / aporte</option><option value="gem">Joya / especial</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label for="gNote">Detalle (opcional)</label><input id="gNote" maxlength="200" placeholder="Ej: acero inoxidable, 8 piezas"></div>
+      <div class="field"><label for="gUrl">Link de referencia (opcional)</label><input id="gUrl" type="url" maxlength="500" placeholder="https://..."></div>
+      <div class="field">
+        <label>Imagen del regalo (opcional)</label>
+        <div class="imgbox">
+          <label for="gFile" style="text-transform:none;letter-spacing:0">Subir una foto desde tu celular o computadora</label>
+          <input id="gFile" type="file" accept="image/*">
+          <p class="hint" style="text-align:center;margin:8px 0">— o —</p>
+          <label for="gImgUrl" style="text-transform:none;letter-spacing:0">Pegar el link de la imagen</label>
+          <input id="gImgUrl" type="url" maxlength="500" placeholder="https://.../foto.jpg">
+          <p class="hint">Tip: en la página de la tienda, mantén presionada la foto y elige "Copiar dirección de la imagen".</p>
+          <div class="prev" id="imgPrev" hidden>
+            <img id="imgPrevImg" alt="Vista previa">
+            <button type="button" id="imgClear" class="danger">Quitar imagen</button>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit" id="saveBtn">Agregar a la lista</button>
+        <button type="button" id="cancelBtn" hidden>Cancelar edición</button>
+      </div>
+      <p class="err" id="formErr" role="alert"></p>
+    </form>
+
+    <h2>Lista y quién eligió cada regalo</h2>
+    <div id="list"></div>
+    <p style="text-align:center;margin-top:18px"><button type="button" id="delAll" class="linkbtn">Borrar toda la lista</button></p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var gifts = [];
+
+  function api(method, path, data) {
+    return fetch(path, {
+      method: method, headers: { 'Content-Type': 'application/json' },
+      body: data ? JSON.stringify(data) : undefined, cache: 'no-store'
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (r.status === 401 && path !== '/api/admin/login') { showLogin(); throw new Error('Sesión vencida'); }
+        if (!r.ok) throw new Error(d.error || 'Error');
+        return d;
+      });
+    });
+  }
+
+  function showLogin() { $('panel').hidden = true; $('login').hidden = false; $('pw').focus(); }
+  function showPanel() { $('login').hidden = true; $('panel').hidden = false; load(); }
+
+  function fmt(d) {
+    try { return new Date(d).toLocaleString('es-PE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' }); }
+    catch (e) { return ''; }
+  }
+
+  function load() {
+    return api('GET', '/api/admin/gifts').then(function (d) { gifts = d.gifts || []; render(); })
+      .catch(function () {});
+  }
+
+  function render() {
+    var taken = gifts.filter(function (g) { return g.claims && g.claims.length; }).length;
+    $('sTotal').textContent = gifts.length; $('sTaken').textContent = taken; $('sFree').textContent = gifts.length - taken;
+    var box = $('list'); box.textContent = '';
+    if (!gifts.length) { var e = document.createElement('div'); e.className = 'card empty'; e.textContent = 'Aún no hay regalos. Agrega el primero arriba.'; box.appendChild(e); return; }
+    gifts.forEach(function (g) {
+      var c = document.createElement('div'); c.className = 'card gift';
+      var main = document.createElement('div'); main.className = 'main';
+      if (g.image) { var th = document.createElement('img'); th.className = 'thumb'; th.alt = ''; th.referrerPolicy = 'no-referrer'; th.src = g.image; th.addEventListener('error', function () { th.remove(); }); main.appendChild(th); }
+      var info = document.createElement('div'); info.className = 'info';
+      var t = document.createElement('div'); t.className = 't'; t.textContent = g.title; info.appendChild(t);
+      if (g.note) { var n = document.createElement('div'); n.className = 'n'; n.textContent = g.note; info.appendChild(n); }
+      if (g.url) { var a = document.createElement('a'); a.href = g.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Ver referencia'; info.appendChild(a); }
+      info.appendChild(document.createElement('br'));
+      var cl = g.claims || [];
+      if (!cl.length) { var b0 = document.createElement('div'); b0.className = 'badge free'; b0.textContent = 'Nadie lo ha elegido aún'; info.appendChild(b0); }
+      else cl.forEach(function (c) {
+        var row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap';
+        var b = document.createElement('span'); b.className = 'badge taken'; b.style.margin = '0';
+        b.textContent = 'Lo regala: ' + c.by + (c.at ? ' · ' + fmt(c.at) : '');
+        var x = document.createElement('button'); x.type = 'button'; x.textContent = 'Quitar'; x.style.cssText = 'padding:2px 10px;font-size:.78rem';
+        x.addEventListener('click', function () {
+          if (confirm('¿Quitar a ' + c.by + ' de "' + g.title + '"?')) api('POST', '/api/admin/release', { id: g.id, key: c.key }).then(load).catch(function (e) { alert(e.message); });
+        });
+        row.appendChild(b); row.appendChild(x); info.appendChild(row);
+      });
+      var act = document.createElement('div'); act.className = 'actions';
+      function btn(label, cls, fn) { var x = document.createElement('button'); x.type = 'button'; x.textContent = label; if (cls) x.className = cls; x.addEventListener('click', fn); act.appendChild(x); }
+      btn('Editar', '', function () { edit(g); });
+      btn('Eliminar', 'danger', function () {
+        if (confirm('¿Eliminar "' + g.title + '" de la lista?'))
+          api('DELETE', '/api/admin/gifts', { id: g.id }).then(load).catch(function (e) { alert(e.message); });
+      });
+      main.appendChild(info); c.appendChild(main); c.appendChild(act); box.appendChild(c);
+    });
+  }
+
+  // ---- Imagen del regalo ----
+  var img = { mode: 'keep', data: null }, hadImage = false;
+  function showPrev(src) {
+    if (src) { $('imgPrevImg').src = src; $('imgPrev').hidden = false; } else { $('imgPrevImg').removeAttribute('src'); $('imgPrev').hidden = true; }
+  }
+  function noImage() { img.mode = hadImage ? 'remove' : 'keep'; img.data = null; showPrev(''); }
+  // Reduce la foto a máx. 900 px y la convierte a JPG liviano antes de enviarla
+  function shrink(file) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onerror = function () { reject(new Error('No se pudo leer la imagen')); };
+      fr.onload = function () {
+        var im = new Image();
+        im.onerror = function () { reject(new Error('Ese archivo no parece una imagen')); };
+        im.onload = function () {
+          var max = 900, w = im.naturalWidth, h = im.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+          var cv = document.createElement('canvas'); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+          var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+          var q = 0.85, out = cv.toDataURL('image/jpeg', q);
+          while (out.length > 600000 && q > 0.4) { q -= 0.1; out = cv.toDataURL('image/jpeg', q); }
+          if (out.length > 650000) reject(new Error('La imagen es muy pesada. Prueba con otra')); else resolve(out);
+        };
+        im.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  $('gFile').addEventListener('change', function () {
+    var f = this.files && this.files[0]; $('formErr').textContent = '';
+    if (!f) return;
+    shrink(f).then(function (d) { img.mode = 'upload'; img.data = d; $('gImgUrl').value = ''; showPrev(d); })
+      .catch(function (err) { $('gFile').value = ''; $('formErr').textContent = err.message; });
+  });
+  $('gImgUrl').addEventListener('input', function () {
+    var v = this.value.trim(); $('gFile').value = '';
+    if (v) { img.mode = 'url'; img.data = null; showPrev(/^https?:\/\//i.test(v) ? v : ''); } else noImage();
+  });
+  $('imgPrevImg').addEventListener('error', function () { if (img.mode === 'url') $('imgPrev').hidden = true; });
+  $('imgClear').addEventListener('click', function () { $('gFile').value = ''; $('gImgUrl').value = ''; noImage(); });
+
+  function edit(g) {
+    hadImage = !!g.image; img = { mode: 'keep', data: null }; $('gFile').value = '';
+    var external = g.image && g.image.indexOf('/api/image') !== 0;
+    $('gImgUrl').value = external ? g.image : ''; showPrev(g.image || '');
+    $('gId').value = g.id; $('gTitle').value = g.title; $('gIcon').value = g.icon || 'gift';
+    $('gNote').value = g.note || ''; $('gUrl').value = g.url || '';
+    $('formTitle').textContent = 'Editar regalo'; $('saveBtn').textContent = 'Guardar cambios'; $('cancelBtn').hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' }); $('gTitle').focus();
+  }
+  function resetForm() {
+    $('giftForm').reset(); $('gId').value = ''; $('formErr').textContent = ''; img = { mode: 'keep', data: null }; hadImage = false; showPrev('');
+    $('formTitle').textContent = 'Agregar un regalo'; $('saveBtn').textContent = 'Agregar a la lista'; $('cancelBtn').hidden = true;
+  }
+  $('cancelBtn').addEventListener('click', resetForm);
+
+  // ---- Importar lista ----
+  var ICON_NAMES = { heart: 'Detalle', home: 'Hogar', kitchen: 'Cocina', bed: 'Dormitorio', envelope: 'Sobre', gem: 'Joya', gift: 'Regalo' };
+  function norm(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+  function guessIcon(t) {
+    var n = norm(t);
+    if (/olla|sarten|licuadora|cocina|vajilla|plato|vaso|copa|cubierto|cuchill|cafetera|batidora|horno|freidora|tupper|tostador/.test(n)) return 'kitchen';
+    if (/sabana|cobija|edredon|almohada|colchon|cama|toalla|cortina|frazada|cubrecama/.test(n)) return 'bed';
+    if (/sobre|efectivo|dinero|luna de miel|aporte|transferencia/.test(n)) return 'envelope';
+    if (/joya|reloj|anillo|collar|perfume/.test(n)) return 'gem';
+    if (/lampara|cuadro|espejo|alfombra|mueble|sofa|mesa|silla|florero|decor|aspiradora|plancha|ventilador|tv|televisor/.test(n)) return 'home';
+    return 'gift';
+  }
+  // Limpia links: quita rastreadores (gclid, utm_...) y acorta si es muy largo
+  var TRACK = /^(utm_|gclid|gad_|gbraid|wbraid|fbclid|msclkid|hsa_|srsltid|gadid|_gl$|mc_)/i;
+  function cleanLink(u) {
+    u = String(u || '').trim();
+    if (!/^https?:\/\//i.test(u)) return '';
+    try {
+      var x = new URL(u);
+      Array.from(x.searchParams.keys()).forEach(function (k) { if (TRACK.test(k)) x.searchParams.delete(k); });
+      u = x.toString();
+      if (u.length > 500) u = x.origin + x.pathname;
+    } catch (e) {}
+    return u.length > 500 ? '' : u;
+  }
+  function cleanTitle(t) {
+    return String(t || '').split(/\r?\n/).filter(function (l) { return l.trim() && !/^saltar al/i.test(l.trim()); }).join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  // Texto con separadores (CSV / pegado desde Excel) -> filas de celdas
+  function parseDelimited(text, d) {
+    var rows = [], row = [], cur = '', q = false, i = 0, c;
+    text = text.replace(/^\uFEFF/, '');
+    for (; i < text.length; i++) {
+      c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+      else if (c === '"' && cur === '') q = true;
+      else if (c === d) { row.push(cur); cur = ''; }
+      else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+      else if (c !== '\r') cur += c;
+    }
+    row.push(cur); rows.push(row);
+    return rows;
+  }
+
+  // Lector de .xlsx sin librerías (un .xlsx es un zip de archivos XML)
+  var NS_R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  function u16(b, o) { return b[o] | (b[o + 1] << 8); }
+  function u32(b, o) { return (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0; }
+  function inflateRaw(data) {
+    var ds = new DecompressionStream('deflate-raw'), w = ds.writable.getWriter();
+    w.write(data); w.close();
+    return new Response(ds.readable).arrayBuffer().then(function (x) { return new Uint8Array(x); });
+  }
+  function unzip(buf) {
+    var b = new Uint8Array(buf), i = b.length - 22, files = {}, k, off, n;
+    while (i >= 0 && u32(b, i) !== 0x06054b50) i--;
+    if (i < 0) throw new Error('Ese archivo no es un Excel (.xlsx) válido');
+    n = u16(b, i + 10); off = u32(b, i + 16);
+    for (k = 0; k < n; k++) {
+      if (u32(b, off) !== 0x02014b50) break;
+      var nl = u16(b, off + 28), el = u16(b, off + 30), cl = u16(b, off + 32);
+      files[new TextDecoder().decode(b.subarray(off + 46, off + 46 + nl))] = { method: u16(b, off + 10), csize: u32(b, off + 20), lh: u32(b, off + 42) };
+      off += 46 + nl + el + cl;
+    }
+    return { read: function (name) {
+      var f = files[name]; if (!f) return Promise.resolve(null);
+      var s = f.lh + 30 + u16(b, f.lh + 26) + u16(b, f.lh + 28), data = b.subarray(s, s + f.csize);
+      return f.method === 0 ? Promise.resolve(data) : inflateRaw(data);
+    } };
+  }
+  function xmlDoc(u8) { return new DOMParser().parseFromString(new TextDecoder().decode(u8), 'application/xml'); }
+  function colIdx(letters) { var n = 0; for (var i = 0; i < letters.length; i++) n = n * 26 + letters.charCodeAt(i) - 64; return n - 1; }
+  function relTarget(doc, id) {
+    var rs = doc.getElementsByTagName('Relationship');
+    for (var i = 0; i < rs.length; i++) if (rs[i].getAttribute('Id') === id) return rs[i].getAttribute('Target');
+    return null;
+  }
+  function parseXlsx(buf) {
+    if (typeof DecompressionStream === 'undefined') return Promise.reject(new Error('Tu navegador no puede leer Excel. Copia las filas desde Excel y pégalas en la caja de texto.'));
+    var z = unzip(buf);
+    return Promise.all([z.read('xl/workbook.xml'), z.read('xl/_rels/workbook.xml.rels'), z.read('xl/sharedStrings.xml')]).then(function (r) {
+      if (!r[0] || !r[1]) throw new Error('No se pudo leer el Excel');
+      var sh = xmlDoc(r[0]).getElementsByTagName('sheet')[0], rid = sh && (sh.getAttribute('r:id') || sh.getAttributeNS(NS_R, 'id'));
+      var target = rid && relTarget(xmlDoc(r[1]), rid);
+      if (!target) throw new Error('El Excel no tiene hojas');
+      var path = target.charAt(0) === '/' ? target.slice(1) : 'xl/' + target, base = path.split('/').pop();
+      var strings = [];
+      if (r[2]) {
+        var sis = xmlDoc(r[2]).getElementsByTagName('si');
+        for (var i = 0; i < sis.length; i++) {
+          var ts = sis[i].getElementsByTagName('t'), txt = '';
+          for (var j = 0; j < ts.length; j++) if (ts[j].parentNode.nodeName !== 'rPh') txt += ts[j].textContent;
+          strings.push(txt);
+        }
+      }
+      return Promise.all([z.read(path), z.read('xl/worksheets/_rels/' + base + '.rels')]).then(function (w) {
+        if (!w[0]) throw new Error('No se pudo leer la hoja del Excel');
+        var sheet = xmlDoc(w[0]), rels = w[1] ? xmlDoc(w[1]) : null, links = {};
+        var hl = sheet.getElementsByTagName('hyperlink');
+        for (var h = 0; h < hl.length; h++) {
+          var hid = hl[h].getAttribute('r:id') || hl[h].getAttributeNS(NS_R, 'id'), t = hid && rels ? relTarget(rels, hid) : null;
+          if (t) links[hl[h].getAttribute('ref').split(':')[0]] = t;
+        }
+        var rows = [], cs = sheet.getElementsByTagName('c');
+        for (var k = 0; k < cs.length; k++) {
+          var c = cs[k], ref = c.getAttribute('r'), m = /^([A-Z]+)(\d+)$/.exec(ref); if (!m) continue;
+          var ty = c.getAttribute('t'), ve = c.getElementsByTagName('v')[0], fe = c.getElementsByTagName('f')[0], val = '';
+          if (ty === 'inlineStr') { var it = c.getElementsByTagName('t'); for (var q = 0; q < it.length; q++) val += it[q].textContent; }
+          else if (ve) val = ty === 's' ? (strings[+ve.textContent] || '') : ve.textContent;
+          var link = links[ref] || null;
+          if (!link && fe) { var hm = /HYPERLINK\(\s*"([^"]+)"/i.exec(fe.textContent); if (hm) link = hm[1]; }
+          var ri = +m[2] - 1, ci = colIdx(m[1]);
+          (rows[ri] = rows[ri] || [])[ci] = { v: val, l: link };
+        }
+        return rows;
+      });
+    });
+  }
+
+  // Tabla (filas de celdas {v,l}) -> regalos. Detecta las columnas por el encabezado.
+  function mapHeader(txt) {
+    var h = norm(txt).replace(/[^a-z]/g, '');
+    if (!h) return null;
+    if (/^(regalo|regalos|nombre|producto|articulo|item|titulo)$/.test(h)) return 'title';
+    if (/^(cantidad|cant|unidades|qty)$/.test(h)) return 'qty';
+    if (/(imagen|foto|image|img)/.test(h)) return 'image';
+    if (/(dondecomprar|comprar|link|enlace|url|tienda|referencia|web)/.test(h)) return 'url';
+    if (/(descripcion|detalle|nota|observ|comentario)/.test(h)) return 'note';
+    return null;
+  }
+  function fromTable(rows) {
+    var map = null, start = 0, r, c;
+    for (r = 0; r < Math.min(rows.length, 30); r++) {
+      var m = {}, cnt = 0;
+      (rows[r] || []).forEach(function (cell, ci) { var f = cell && mapHeader(cell.v); if (f && !(f in m)) { m[f] = ci; cnt++; } });
+      if (cnt >= 2 && 'title' in m) { map = m; start = r + 1; break; }
+    }
+    if (!map) { // sin encabezado: Regalo, Imagen, Dónde comprarlo, Descripción
+      var first = 0; for (r = 0; r < rows.length; r++) if (rows[r] && rows[r].some(function (x) { return x && x.v; })) { first = r; break; }
+      var lead = 0; (rows[first] || []).some(function (x, i) { if (x && x.v) { lead = i; return true; } return false; });
+      map = { title: lead, image: lead + 1, url: lead + 2, note: lead + 3 }; start = first;
+    }
+    var out = [];
+    for (r = start; r < rows.length; r++) {
+      var row = rows[r] || [], g = function (f) { return f in map ? (row[map[f]] || { v: '', l: null }) : { v: '', l: null }; };
+      var title = cleanTitle(g('title').v); if (!title || /^ejemplo\b/i.test(title)) continue; // la fila de ejemplo de la plantilla no se importa
+      var img = g('image'), url = g('url'), noteCell = g('note');
+      var image = cleanLink(img.l || img.v), link = cleanLink(url.l || url.v);
+      var note = cleanTitle(noteCell.v);
+      if (!note && !link && url.v && !/^https?:\/\//i.test(url.v)) note = cleanTitle(url.v); // texto en vez de link
+      var qty = Math.max(1, Math.min(parseInt(g('qty').v, 10) || 1, 20));
+      for (var i = 0; i < qty; i++) out.push({ title: title.slice(0, 100), note: note.slice(0, 200), url: link, image: image, icon: guessIcon(title) });
+    }
+    return out.slice(0, 300);
+  }
+
+  var bulkItems = [], bulkToSend = [];
+  function showBulk(items) {
+    bulkItems = items; $('bulkMsg').textContent = ''; $('bulkMsg').style.color = '';
+    var have = {}; gifts.forEach(function (g) { have[norm(g.title).replace(/\s+/g, ' ')] = 1; });
+    var skip = $('bulkSkip').checked, dupN = 0;
+    bulkToSend = [];
+    var box = $('bulkPrev'); box.textContent = '';
+    var ul = document.createElement('ul');
+    items.forEach(function (g) {
+      var dup = !!have[norm(g.title).replace(/\s+/g, ' ')]; if (dup && skip) dupN++; else bulkToSend.push(g);
+      var li = document.createElement('li'); if (dup && skip) li.className = 'dup';
+      var t = document.createElement('div'); t.className = 't';
+      if (g.image) { var im = document.createElement('img'); im.alt = ''; im.referrerPolicy = 'no-referrer'; im.loading = 'lazy'; im.addEventListener('error', function () { im.style.visibility = 'hidden'; }); im.src = g.image; t.appendChild(im); }
+      var sp = document.createElement('span'), b = document.createElement('b'); b.textContent = g.title; sp.appendChild(b);
+      if (g.note) { var sm = document.createElement('small'); sm.textContent = ' — ' + g.note; sp.appendChild(sm); }
+      t.appendChild(sp);
+      var em = document.createElement('em'); em.textContent = (dup && skip ? 'Ya existe · ' : '') + (g.url ? 'con link · ' : '') + (ICON_NAMES[g.icon] || 'Regalo');
+      li.appendChild(t); li.appendChild(em); ul.appendChild(li);
+    });
+    if (items.length) {
+      var p = document.createElement('p'); p.className = 'hint';
+      var withImg = items.filter(function (g) { return g.image; }).length, withUrl = items.filter(function (g) { return g.url; }).length;
+      p.textContent = 'Vista previa: ' + items.length + ' regalos · ' + withImg + ' con foto · ' + withUrl + ' con link de compra' + (dupN ? ' · ' + dupN + ' ya están en la lista y se omiten' : '') + '.';
+      box.appendChild(p); box.appendChild(ul);
+    }
+    var n = bulkToSend.length;
+    $('bulkGo').disabled = !n;
+    $('bulkGo').textContent = n ? 'Agregar ' + n + (n === 1 ? ' regalo' : ' regalos') + ' a la lista' : 'Agregar a la lista';
+  }
+  $('bulkSkip').addEventListener('change', function () { showBulk(bulkItems); });
+  $('bulkFile').addEventListener('change', function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    $('bulkMsg').textContent = ''; $('bulkMsg').style.color = '';
+    var ext = (f.name.split('.').pop() || '').toLowerCase();
+    var done = function (items) { showBulk(items); if (!items.length) $('bulkMsg').textContent = 'No encontré regalos en el archivo. Llena al menos una fila debajo de los encabezados (y borra la fila de ejemplo).'; };
+    var fail = function (e) { $('bulkFile').value = ''; showBulk([]); $('bulkMsg').textContent = e.message || 'No se pudo leer el archivo'; };
+    if (ext === 'xlsx') {
+      f.arrayBuffer().then(parseXlsx).then(function (rows) { done(fromTable(rows)); }).catch(fail);
+    } else {
+      f.text().then(function (txt) {
+        var first = txt.split(/\r?\n/)[0] || '', d = ['\t', ';', ','].sort(function (a, b) { return first.split(b).length - first.split(a).length; })[0];
+        done(fromTable(parseDelimited(txt, d).map(function (r) { return r.map(function (v) { return { v: v, l: null }; }); })));
+      }).catch(fail);
+    }
+  });
+  $('bulkGo').addEventListener('click', function () {
+    if (!bulkToSend.length) return;
+    var btn = this; btn.disabled = true; btn.textContent = 'Agregando…'; $('bulkMsg').textContent = '';
+    api('POST', '/api/admin/gifts', { bulk: bulkToSend }).then(function (d) {
+      $('bulkFile').value = '';
+      return load().then(function () { showBulk([]); $('bulkMsg').style.color = '#1b7f4c'; $('bulkMsg').textContent = '¡Listo! Se agregaron ' + d.added + ' regalos.'; });
+    }).catch(function (e) { $('bulkMsg').style.color = ''; $('bulkMsg').textContent = e.message; showBulk(bulkItems); });
+  });
+  $('delAll').addEventListener('click', function () {
+    if (!gifts.length) return;
+    if (!window.confirm('¿Borrar TODA la lista (' + gifts.length + ' regalos) y quién eligió cada uno? Esto no se puede deshacer.')) return;
+    if (!window.confirm('Última confirmación: se borrarán todos los regalos.')) return;
+    api('DELETE', '/api/admin/gifts', { all: true }).then(load).catch(function (e) { alert(e.message); });
+  });
+
+  $('giftForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var id = $('gId').value;
+    var data = { title: $('gTitle').value, icon: $('gIcon').value, note: $('gNote').value, url: $('gUrl').value };
+    if (id) data.id = Number(id);
+    data.image_mode = img.mode;
+    if (img.mode === 'url') data.image_url = $('gImgUrl').value.trim();
+    if (img.mode === 'upload') data.image_data = img.data;
+    $('saveBtn').disabled = true; $('formErr').textContent = '';
+    api(id ? 'PUT' : 'POST', '/api/admin/gifts', data)
+      .then(function () { resetForm(); return load(); })
+      .catch(function (err) { $('formErr').textContent = err.message; })
+      .then(function () { $('saveBtn').disabled = false; });
+  });
+
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('loginErr').textContent = '';
+    api('POST', '/api/admin/login', { password: $('pw').value })
+      .then(function () { $('pw').value = ''; showPanel(); })
+      .catch(function (err) { $('loginErr').textContent = err.message; });
+  });
+  $('logout').addEventListener('click', function () { api('DELETE', '/api/admin/login').then(showLogin); });
+
+  api('GET', '/api/admin/login').then(function (d) { d.admin ? showPanel() : showLogin(); }).catch(showLogin);
+  setInterval(function () { if (!$('panel').hidden && !document.hidden) load(); }, 20000);
+})();
+</script>
+</body>
+</html>
