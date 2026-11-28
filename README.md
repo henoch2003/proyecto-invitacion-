@@ -9,7 +9,6 @@
 
 ## Cosas que debes completar
 1. **Ubicación**: en `public/index.html`, busca `var MAPS_URL = '';` y pega entre las comillas el link de Google Maps de la iglesia. Mientras esté vacío, el botón avisa "muy pronto compartiremos la ubicación".
-2. **Dominio**: en `public/index.html` reemplaza `TU-DOMINIO.vercel.app` (2 veces) por el dominio real, para que se vea la foto al compartir por WhatsApp.
 3. **Música**: `public/assets/musica.mp3` es la canción de fondo. Reemplázala por la que quieras (mismo nombre de archivo).
 
 ## Variables en Vercel
